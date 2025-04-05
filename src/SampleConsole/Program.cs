@@ -1,4 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Boolit.net;
+
 Console.WriteLine("Hello, World!");
 
 TestCase[] tests = [
