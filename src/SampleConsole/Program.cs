@@ -1,6 +1,4 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Boolify.NET;
-
 Console.WriteLine("Hello, World!");
 
 TestCase[] tests = [

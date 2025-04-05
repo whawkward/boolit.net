@@ -1,4 +1,4 @@
-﻿namespace Boolify.NET.Tokens;
+﻿namespace Boolit.net.Tokens;
 
 internal interface IToken;
 

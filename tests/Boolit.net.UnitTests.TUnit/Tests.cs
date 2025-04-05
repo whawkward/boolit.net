@@ -1,6 +1,6 @@
-﻿using Boolify.NET.UnitTests.TUnit.Data;
+﻿using Boolit.net.UnitTests.TUnit.Data;
 
-namespace Boolify.NET.UnitTests.TUnit;
+namespace Boolit.net.UnitTests.TUnit;
 
 public class Tests
 {

@@ -1,6 +1,6 @@
 ﻿using TUnit.Core.Interfaces;
 
-namespace Boolify.NET.UnitTests.TUnit;
+namespace Boolit.net.UnitTests.TUnit;
 
 public class DependencyInjectionClassConstructor : IClassConstructor
 {

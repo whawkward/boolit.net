@@ -1,8 +1,8 @@
-﻿using Boolify.NET.Tokens;
+﻿using Boolit.net.Tokens;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Boolify.NET.Parsing;
+namespace Boolit.net.Parsing;
 
 internal ref struct Lexer(string expression)
 {
