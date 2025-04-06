@@ -1,4 +1,4 @@
-﻿namespace Boolify.NET.UnitTests.TUnit.Data;
+﻿namespace Boolit.net.UnitTests.TUnit.Data;
 
 public class DataGenerator : DataSourceGeneratorAttribute<int, int, int>
 {

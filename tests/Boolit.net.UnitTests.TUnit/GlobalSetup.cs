@@ -4,7 +4,7 @@
 [assembly: Retry(3)]
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 
-namespace Boolify.NET.UnitTests.TUnit;
+namespace Boolit.net.UnitTests.TUnit;
 
 public class GlobalHooks
 {

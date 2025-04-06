@@ -1,7 +1,7 @@
-﻿using Boolify.NET.Ast;
-using Boolify.NET.Tokens;
+﻿using Boolit.net.Ast;
+using Boolit.net.Tokens;
 
-namespace Boolify.NET.Parsing;
+namespace Boolit.net.Parsing;
 internal static class Parser
 {
     public static AstNode ToAst(this Lexer lexer)

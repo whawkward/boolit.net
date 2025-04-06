@@ -1,5 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Boolify.NET;
+using Boolit.net;
 
 Console.WriteLine("Hello, World!");
 

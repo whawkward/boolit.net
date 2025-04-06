@@ -1,4 +1,4 @@
-﻿namespace Boolify.NET.UnitTests.XUnit;
+﻿namespace Boolit.net.UnitTests.XUnit;
 
 public class UnitTest1
 {

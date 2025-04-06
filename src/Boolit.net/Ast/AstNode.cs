@@ -1,4 +1,4 @@
-﻿namespace Boolify.NET.Ast;
+﻿namespace Boolit.net.Ast;
 
 internal abstract class AstNode
 {

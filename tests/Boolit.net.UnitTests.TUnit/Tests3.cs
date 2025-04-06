@@ -1,4 +1,4 @@
-﻿namespace Boolify.NET.UnitTests.TUnit;
+﻿namespace Boolit.net.UnitTests.TUnit;
 
 [ClassDataSource<DataClass>]
 [ClassConstructor<DependencyInjectionClassConstructor>]
