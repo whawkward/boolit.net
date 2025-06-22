@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Boolit.net;
-
-Console.WriteLine("Hello, World!");
+using Boolit.NET;
+using SampleConsole;
 
 TestCase[] tests = [
     new ("true and TRUE", true),
@@ -21,6 +20,7 @@ TestCase[] tests = [
 foreach (var test in tests)
 {
     Console.WriteLine($"Testing: {test.Expression}");
+#pragma warning disable CA1031 // Do not catch general exception types
     try
     {
         var expressions = BoolExpression.Create(test.Expression);
@@ -29,8 +29,7 @@ foreach (var test in tests)
     }
     catch (Exception ex)
     {
-        Console.Error.WriteLine($"Error: {ex.Message}\n\n**\n");
+        await Console.Error.WriteLineAsync($"Error: {ex.Message}\n\n**\n").ConfigureAwait(false);
     }
+#pragma warning restore CA1031 // Do not catch general exception types
 }
-
-internal sealed record TestCase(string Expression, bool ExpectedResult);
