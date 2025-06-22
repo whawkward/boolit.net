@@ -28,7 +28,7 @@ public class InvalidConsecutiveOperandsException : InvalidTokenException
 public class InvalidConsecutiveBoolTokensException : InvalidTokenException
 #pragma warning restore CA1032 // Implement standard exception constructors
 {
-    private const string _messageFormat = "Invalid consecutive tokens at index {0}; boolean values must be separated by operators: AND, OR, XOR; \"{0}\"";
+    private const string _messageFormat = "Invalid consecutive tokens at index {0}; boolean values must be separated by operators: AND, OR, XOR; \"{1}\"";
     internal InvalidConsecutiveBoolTokensException(string expression, int index)
         : base(expression, index, _messageFormat)
     {
