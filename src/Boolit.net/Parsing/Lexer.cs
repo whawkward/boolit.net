@@ -1,15 +1,16 @@
-﻿using Boolit.net.Tokens;
+﻿using Boolit.NET.Exceptions;
+using Boolit.NET.Tokens;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Boolit.net.Parsing;
+namespace Boolit.NET.Parsing;
 
 internal ref struct Lexer(string expression)
 {
-    private readonly string _inputExpression = expression;
+    public string InputExpression { get; } = expression;
     private ReadOnlySpan<char> _workingSpan = expression.AsSpan().TrimStart();
     private CurrentToken? _current;
-    private readonly int Index => _inputExpression.Length - _workingSpan.Length;
+    private readonly int Index => InputExpression.Length - _workingSpan.Length;
 
     public readonly IToken? Current => _current?.Token;
     public readonly int CurrentIndex => _current?.Index ?? -1;
@@ -37,7 +38,7 @@ internal ref struct Lexer(string expression)
 
         // If it's not white space, and can't parse a bool or operand,
         // then it's an unknown token.
-        throw new Exception(/*TODO: Replace with custom exception*/$"Unsupported format: unrecognised token at index {Index}; \"{_inputExpression.Insert(Index, "*")}\"");
+        throw new UnsupportedTokenException(InputExpression, Index);
     }
 
     private bool TryCreateTokenAndAdvance([NotNullWhen(true)] out CurrentToken? token)
@@ -57,7 +58,7 @@ internal ref struct Lexer(string expression)
 
                 token = new(tempToken, Index, value.Length);
 
-                _workingSpan = _workingSpan.Slice(value.Length).TrimStart();
+                _workingSpan = _workingSpan[value.Length..].TrimStart();
 
                 return true;
             }
@@ -71,7 +72,7 @@ internal ref struct Lexer(string expression)
     {
         if (Current is BoolToken && token is BoolToken)
         {
-            throw new Exception(/*TODO: Replace with custom exception*/$"Unsupported format: unexpected token at index {Index}; \"{_inputExpression.Insert(Index, "*")}\"");
+            throw new InvalidConsecutiveBoolTokensException(InputExpression, Index);
         }
 
         if (Current is IOperandToken token1 && token is IOperandToken token2)
@@ -84,14 +85,16 @@ internal ref struct Lexer(string expression)
     {
         switch ((token1, token2))
         {
-            // (!, && !, || !, ^ !, !!, and !, or !, xor !
+            // (!, && !, || !, ^ !, !!, and !, or !, xor !, not not, ! not, not !
             case (OpenParenthesisToken or AndToken or OrToken or XorToken or NotToken, NotToken):
-            // !(
-            case (NotToken, OpenParenthesisToken):
+            // !(, && (, || (, ^ (, and (, or (, xor (
+            case (NotToken or AndToken or OrToken or XorToken or OpenParenthesisToken, OpenParenthesisToken):
+            // ) &&, ) ||, ) ^, ) and, ) or, ) xor
+            case (CloseParenthesisToken, AndToken or OrToken or XorToken or CloseParenthesisToken):
                 // Valid
                 return;
         }
-        throw new Exception(/*TODO: Replace with custom exception*/$"Unsupported format: unexpected token at index {Index}; \"{_inputExpression.Insert(Index, "*")}\"");
+        throw new InvalidConsecutiveOperandsException(InputExpression, Index);
     }
 
     private readonly record struct CurrentToken(IToken Token, int Index, int Length);

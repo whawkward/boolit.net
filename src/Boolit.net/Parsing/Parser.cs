@@ -1,5 +1,5 @@
 ﻿using Boolit.NET.Ast;
-using Boolit.net.Tokens;
+using Boolit.NET.Exceptions;
 using Boolit.NET.Tokens;
 
 namespace Boolit.NET.Parsing;
@@ -50,7 +50,7 @@ internal static class Parser
     {
         if (!lexer.Advance())
         {
-            throw new Exception(/*TODO: Replace with custom exception*/"Unexpected end of expression");
+            throw new UnexpectedEndOfExpressionException(lexer.InputExpression);
         }
 
         var token = lexer.Current;
@@ -59,6 +59,7 @@ internal static class Parser
         {
             case BoolToken boolToken:
                 return new BoolNode(boolToken.Value);
+
             case NotToken:
                 return new NotNode(ParseTerm(ref lexer, ref parenCount));
 
@@ -68,16 +69,15 @@ internal static class Parser
 
                 if (lexer.Current is not CloseParenthesisToken)
                 {
-                    throw new Exception(/*TODO: Replace with custom exception*/$"Expected closing parenthesis at index {lexer.CurrentIndex}");
+                    throw new MissingClosingParenthesisException(lexer.InputExpression,
+                        lexer.CurrentIndex == -1 ? lexer.InputExpression.Length - 1 : lexer.CurrentIndex);
                 }
 
                 // We found the matching closing parenthesis
                 parenCount--;
                 return node;
-
             default:
-                throw new Exception(/*TODO: Replace with custom exception*/$"Unexpected token at index {lexer.CurrentIndex}");
+                throw new UnexpectedTokenException(lexer.InputExpression, lexer.CurrentIndex);
         }
-
     }
 }
