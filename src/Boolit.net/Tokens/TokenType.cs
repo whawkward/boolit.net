@@ -1,4 +1,4 @@
-﻿namespace Boolit.net.Tokens;
+﻿namespace Boolit.NET.Tokens;
 
 public enum TokenType
 {
@@ -28,14 +28,3 @@ internal static class TokenTypeExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(type))
         };
 }
-
-//internal sealed class TokenSet
-//{
-//    private TokenSet(IDictionary<string, TokenType> tokens)
-//    {
-//    }
-//    public ImmutableDictionary<string, TokenType> TokenValueToType { get; }
-//}
-
-// TODO: Implement a TokenSetBuilder that builds a TokenSet.
-// When it's built, it will fail if no words/symbols are present for certain TokenType values.
