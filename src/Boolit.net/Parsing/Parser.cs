@@ -1,35 +1,52 @@
-﻿using Boolit.net.Ast;
+﻿using Boolit.NET.Ast;
 using Boolit.net.Tokens;
+using Boolit.NET.Tokens;
 
-namespace Boolit.net.Parsing;
+namespace Boolit.NET.Parsing;
 internal static class Parser
 {
-    public static AstNode ToAst(this Lexer lexer)
-        => ParseExpression(ref lexer);
-
-    private static AstNode ParseExpression(ref Lexer lexer)
+    public static IAstNode ToAst(this Lexer lexer)
     {
-        var node = ParseTerm(ref lexer);
+        int parenCount = 0;
+        var node = ParseExpression(ref lexer, ref parenCount);
 
-        while (lexer.Advance() && (lexer.Current is AndToken or OrToken or XorToken))
+        return node;
+    }
+
+    private static IAstNode ParseExpression(ref Lexer lexer, ref int parenCount)
+    {
+        var node = ParseTerm(ref lexer, ref parenCount);
+
+        while (lexer.Advance() && lexer.Current is AndToken or OrToken or XorToken)
         {
             switch (lexer.Current)
             {
                 case AndToken:
-                    node = new AndNode(node, ParseTerm(ref lexer));
+                    node = new AndNode(node, ParseTerm(ref lexer, ref parenCount));
                     break;
                 case OrToken:
-                    node = new OrNode(node, ParseTerm(ref lexer));
+                    node = new OrNode(node, ParseTerm(ref lexer, ref parenCount));
                     break;
                 case XorToken:
-                    node = new XorNode(node, ParseTerm(ref lexer));
+                    node = new XorNode(node, ParseTerm(ref lexer, ref parenCount));
                     break;
             }
         }
+
+        // We've exited the loop, which means we've either:
+        // 1. Run out of tokens (Advance returned false)
+        // 2. Found a token that isn't an operator (possibly a closing parenthesis)
+
+        // If we encounter a closing parenthesis without an opening one
+        if (lexer.Current is CloseParenthesisToken && parenCount == 0)
+        {
+            throw new UnbalancedParenthesesException(lexer.InputExpression, lexer.CurrentIndex);
+        }
+
         return node;
     }
 
-    private static AstNode ParseTerm(ref Lexer lexer)
+    private static IAstNode ParseTerm(ref Lexer lexer, ref int parenCount)
     {
         if (!lexer.Advance())
         {
@@ -43,14 +60,19 @@ internal static class Parser
             case BoolToken boolToken:
                 return new BoolNode(boolToken.Value);
             case NotToken:
-                return new NotNode(ParseTerm(ref lexer));
+                return new NotNode(ParseTerm(ref lexer, ref parenCount));
+
             case OpenParenthesisToken:
-                var node = ParseExpression(ref lexer);
+                parenCount++; // Track opening parenthesis
+                var node = ParseExpression(ref lexer, ref parenCount);
+
                 if (lexer.Current is not CloseParenthesisToken)
                 {
                     throw new Exception(/*TODO: Replace with custom exception*/$"Expected closing parenthesis at index {lexer.CurrentIndex}");
                 }
 
+                // We found the matching closing parenthesis
+                parenCount--;
                 return node;
 
             default:
