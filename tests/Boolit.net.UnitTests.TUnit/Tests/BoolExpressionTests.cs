@@ -40,8 +40,7 @@ internal sealed class BoolExpressionTests
         
 
         var exception = await Assert.ThrowsAsync<InvalidConsecutiveOperandsException>(
-            async () => await Task.Run(() => expression.Evaluate())
-                .ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
 
         await Assert.That(exception.Message)

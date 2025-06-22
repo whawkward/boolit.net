@@ -41,7 +41,7 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         var exception = await Assert.ThrowsAsync<MissingClosingParenthesisException>(
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
 
         await Assert.That(exception.Message).Contains("Expected closing parenthesis");
@@ -58,7 +58,7 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         var exception = await Assert.ThrowsAsync<UnbalancedParenthesesException>(
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
 
         await Assert.That(exception.Message).Contains("Unmatched closing parenthesis");
@@ -74,7 +74,7 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         await Assert.ThrowsAsync<InvalidTokenException>(
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
     }
 
@@ -89,7 +89,7 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         await Assert.ThrowsAsync<InvalidConsecutiveOperandsException>(
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
     }
 
@@ -104,7 +104,8 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         await Assert.ThrowsAsync(exception,
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false)).ConfigureAwait(false);
+            () => Task.FromResult(expression.Evaluate()))
+            .ConfigureAwait(false);
     }
 
 
@@ -118,7 +119,7 @@ internal sealed class ParenthesisValidationTests
         var expression = BoolExpression.Create(inputExpression);
 
         var exception = await Assert.ThrowsAsync<InvalidTokenException>(
-            async () => await Task.Run(() => expression.Evaluate()).ConfigureAwait(false))
+            () => Task.FromResult(expression.Evaluate()))
             .ConfigureAwait(false);
 
         await Assert.That(exception.Message).Contains(expectedErrorMessage);
