@@ -1,4 +1,4 @@
-﻿namespace Boolit.NET.Tokens;
+namespace Boolit.NET.Tokens;
 
 public enum TokenType
 {
@@ -14,7 +14,13 @@ public enum TokenType
 
 internal static class TokenTypeExtensions
 {
-    public static IToken ToToken(this TokenType type)
+    /// <summary>
+        /// Converts a <see cref="TokenType"/> value to its corresponding <see cref="IToken"/> instance.
+        /// </summary>
+        /// <param name="type">The token type to convert.</param>
+        /// <returns>The token instance representing the specified token type.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the token type is not recognized.</exception>
+        public static IToken ToToken(this TokenType type)
         => type switch
         {
             TokenType.BoolTrue => new BoolToken(true),

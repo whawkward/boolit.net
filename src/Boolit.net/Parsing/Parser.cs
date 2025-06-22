@@ -1,10 +1,14 @@
-﻿using Boolit.NET.Ast;
+using Boolit.NET.Ast;
 using Boolit.NET.Exceptions;
 using Boolit.NET.Tokens;
 
 namespace Boolit.NET.Parsing;
 internal static class Parser
 {
+    /// <summary>
+    /// Parses the token stream from the lexer and returns the root node of the abstract syntax tree representing the boolean expression.
+    /// </summary>
+    /// <returns>The root <see cref="IAstNode"/> of the parsed boolean expression AST.</returns>
     public static IAstNode ToAst(this Lexer lexer)
     {
         int parenCount = 0;
@@ -13,6 +17,18 @@ internal static class Parser
         return node;
     }
 
+    /// <summary>
+    /// Parses a boolean expression from the lexer, handling binary operators and validating balanced parentheses.
+    /// </summary>
+    /// <param name="parenCount">
+    /// The current count of open parentheses, passed by reference to track nesting and ensure proper matching.
+    /// </param>
+    /// <returns>
+    /// The root <see cref="IAstNode"/> representing the parsed boolean expression.
+    /// </returns>
+    /// <exception cref="UnbalancedParenthesesException">
+    /// Thrown if a closing parenthesis is encountered without a corresponding opening parenthesis.
+    /// </exception>
     private static IAstNode ParseExpression(ref Lexer lexer, ref int parenCount)
     {
         var node = ParseTerm(ref lexer, ref parenCount);
@@ -46,6 +62,24 @@ internal static class Parser
         return node;
     }
 
+    /// <summary>
+    /// Parses a single term from the lexer, handling boolean literals, negation, and parenthesized sub-expressions.
+    /// </summary>
+    /// <param name="parenCount">
+    /// Reference to the current count of open parentheses, used to ensure balanced grouping.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IAstNode"/> representing the parsed term.
+    /// </returns>
+    /// <exception cref="UnexpectedEndOfExpressionException">
+    /// Thrown if the end of the input is reached unexpectedly.
+    /// </exception>
+    /// <exception cref="MissingClosingParenthesisException">
+    /// Thrown if an opening parenthesis is not matched by a closing parenthesis.
+    /// </exception>
+    /// <exception cref="UnexpectedTokenException">
+    /// Thrown if an unexpected token is encountered while parsing a term.
+    /// </exception>
     private static IAstNode ParseTerm(ref Lexer lexer, ref int parenCount)
     {
         if (!lexer.Advance())

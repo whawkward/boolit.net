@@ -1,4 +1,4 @@
-﻿using Boolit.NET.Exceptions;
+using Boolit.NET.Exceptions;
 using Boolit.NET.Tokens;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -18,6 +18,14 @@ internal ref struct Lexer(string expression)
     public bool Advance()
         => TryGetNextToken(out _current);
 
+    /// <summary>
+    /// Attempts to retrieve the next token from the input expression.
+    /// </summary>
+    /// <param name="token">When successful, contains the next token; otherwise, null.</param>
+    /// <returns><c>true</c> if a token was successfully parsed; otherwise, <c>false</c> if the input is exhausted.</returns>
+    /// <exception cref="UnsupportedTokenException">
+    /// Thrown if an unrecognized token is encountered in the input expression.
+    /// </exception>
     private bool TryGetNextToken([NotNullWhen(true)] out CurrentToken? token)
     {
         if (_workingSpan.IsEmpty)
@@ -41,6 +49,15 @@ internal ref struct Lexer(string expression)
         throw new UnsupportedTokenException(InputExpression, Index);
     }
 
+    /// <summary>
+    /// Attempts to create a token from the current position in the input and advances the working span if successful.
+    /// </summary>
+    /// <param name="token">
+    /// When this method returns <c>true</c>, contains the created <see cref="CurrentToken"/>; otherwise, <c>null</c>.
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if a valid token was created and the working span was advanced; otherwise, <c>false</c>.
+    /// </returns>
     private bool TryCreateTokenAndAdvance([NotNullWhen(true)] out CurrentToken? token)
     {
         var firstChar = char.ToLowerInvariant(_workingSpan[0]);
@@ -68,6 +85,11 @@ internal ref struct Lexer(string expression)
         return false;
     }
 
+    /// <summary>
+    /// Validates the provided token against the current token to ensure that invalid token sequences do not occur.
+    /// Throws an exception if two boolean tokens or invalid consecutive operand tokens are detected.
+    /// </summary>
+    /// <param name="token">The token to validate against the current token.</param>
     private readonly void ValidateToken(IToken token)
     {
         if (Current is BoolToken && token is BoolToken)
@@ -81,6 +103,14 @@ internal ref struct Lexer(string expression)
         }
     }
 
+    /// <summary>
+    /// Validates whether two consecutive operand tokens form a permitted sequence in a boolean expression.
+    /// </summary>
+    /// <param name="token1">The first operand token.</param>
+    /// <param name="token2">The second operand token.</param>
+    /// <exception cref="InvalidConsecutiveOperandsException">
+    /// Thrown if the sequence of operand tokens is not allowed in the context of boolean expression parsing.
+    /// </exception>
     private readonly void ValidateConsecutiveOperandTokens(IOperandToken token1, IOperandToken token2)
     {
         switch ((token1, token2))

@@ -1,6 +1,14 @@
-﻿namespace Boolit.NET.Extensions;
+namespace Boolit.NET.Extensions;
 internal static class ExpressionStringExtensions
 {
+    /// <summary>
+    /// Inserts an asterisk ('*') marker into the specified string at the given index, handling whitespace and edge cases.
+    /// </summary>
+    /// <param name="expression">The input string into which the marker will be inserted.</param>
+    /// <param name="index">The position at which to insert the marker.</param>
+    /// <returns>A new string with an asterisk inserted at the specified index.</returns>
+    /// <exception cref="ArgumentException">Thrown if the input string is null or empty.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the index is outside the bounds of the string.</exception>
     public static string InsertMarkerAtIndex(this string expression, int index)
     {
         if (string.IsNullOrEmpty(expression))
