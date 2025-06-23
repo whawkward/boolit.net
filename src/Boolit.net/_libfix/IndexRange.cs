@@ -1,7 +1,6 @@
-﻿using System.Globalization;
+﻿#if NETSTANDARD2_0
+using System.Globalization;
 using System.Runtime.CompilerServices;
-
-#if !NETSTANDARD2_1_OR_GREATER && !NETCORE3_0_OR_GREATER
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace System

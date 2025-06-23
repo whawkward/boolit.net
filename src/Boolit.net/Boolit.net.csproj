@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net80;net90</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13</LangVersion>
@@ -24,5 +24,4 @@
 		<InternalsVisibleTo Include="Boolit.NET.UnitTests.TUnit" />
 		<InternalsVisibleTo Include="Boolit.NET.UnitTests.XUnit" />
 	</ItemGroup>
-
 </Project>

@@ -1,4 +1,5 @@
 ﻿namespace Boolit.NET.Extensions;
+
 internal static class ExpressionStringExtensions
 {
     public static string InsertMarkerAtIndex(this string expression, int index)
