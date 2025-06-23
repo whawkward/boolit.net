@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Boolit.NET;
+﻿using Boolit.NET;
 using SampleConsole;
 
 TestCase[] tests = [
@@ -29,7 +28,9 @@ foreach (var test in tests)
     }
     catch (Exception ex)
     {
-        await Console.Error.WriteLineAsync($"Error: {ex.Message}\n\n**\n").ConfigureAwait(false);
+#pragma warning disable S6966 // Awaitable method should be used
+        Console.Error.WriteLine($"Error: {ex.Message}\n\n**\n");
+#pragma warning restore S6966 // Awaitable method should be used
     }
 #pragma warning restore CA1031 // Do not catch general exception types
 }
