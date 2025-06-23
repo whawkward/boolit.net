@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Globalization;
+
+#if !NETSTANDARD2_1_OR_GREATER && !NETCORE3_0_OR_GREATER
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace System
 {
-
-
     internal readonly struct Index : IEquatable<Index>
     {
         private readonly int _value;
@@ -125,7 +122,7 @@ namespace System
         public override string ToString()
             => IsFromEnd
                 ? $"^{((uint)Value).ToString(CultureInfo.InvariantCulture)}"
-                : ((uint)Value).ToString(CultureInfo.InvariantCulture);        
+                : ((uint)Value).ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>Construct a Range object using the start and end indexes.</summary>
@@ -181,7 +178,7 @@ namespace System
         /// <summary>Create a Range object starting from first element to the end.</summary>
         public static Range All => new(Index.Start, Index.End);
 
-        
+
 
         /// <summary>Calculate the start offset and length of range object using a collection length.</summary>
         /// <param name="length">The length of the collection that the range will be used with. length has to be a positive value.</param>
@@ -256,6 +253,6 @@ namespace System.Runtime.CompilerServices
         }
     }
 }
-
-
 #pragma warning restore IDE0130 // Namespace does not match folder structure
+
+#endif
