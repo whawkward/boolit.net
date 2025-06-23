@@ -43,6 +43,20 @@ internal sealed class BoolExpressionTests
             .ConfigureAwait(false);
 
         await Assert.That(exception.Message)
-            .Contains("Invalid consecutive operands at index 8;");
+            .Contains("Invalid consecutive operands");
+    }
+
+    [Test]
+    [Arguments("true and")]
+    public async Task IncompleteExpressions_ShouldThrowUnexpectedEndOfExpressionException(string inputExpression)
+    {
+        var expression = BoolExpression.Create(inputExpression);
+
+        var exception = await Assert.ThrowsAsync<UnexpectedEndOfExpressionException>(
+            () => Task.FromResult(expression.Evaluate()))
+            .ConfigureAwait(false);
+
+        await Assert.That(exception.Message)
+            .Contains("Unexpected end of expression");
     }
 }
