@@ -1,6 +1,6 @@
-﻿using Boolit.net.Parsing;
+﻿using Boolit.NET.Parsing;
 
-namespace Boolit.net;
+namespace Boolit.NET;
 
 public sealed class BoolExpression
 {
