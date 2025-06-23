@@ -80,11 +80,12 @@ public class UnsupportedTokenException : InvalidTokenException
 }
 
 #pragma warning disable CA1032 // Implement standard exception constructors
-public class UnexpectedEndOfExpressionException : Exception
+public class UnexpectedEndOfExpressionException : InvalidTokenException
 #pragma warning restore CA1032 // Implement standard exception constructors
 {
+    private const string _messageFormat = "Unexpected end of expression \"{0}\"";
     internal UnexpectedEndOfExpressionException(string expression)
-        : base($"Unexpected end of expression \"{expression}\"")
+        : base(expression, expression.Length - 1, _messageFormat)
     {
     }
 }
