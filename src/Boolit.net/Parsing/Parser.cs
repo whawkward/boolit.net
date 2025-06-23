@@ -10,6 +10,11 @@ internal static class Parser
         int parenCount = 0;
         var node = ParseExpression(ref lexer, ref parenCount);
 
+        if (parenCount > 0)
+        {
+            throw new MissingClosingParenthesisException(lexer.InputExpression, lexer.InputExpression.Length - 1);
+        }
+
         return node;
     }
 
