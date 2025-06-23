@@ -108,7 +108,6 @@ internal sealed class ParenthesisValidationTests
             .ConfigureAwait(false);
     }
 
-
     // Specific Mixed Error Cases
     [Test]
     [Arguments("true))))))", "Unmatched closing parenthesis")]

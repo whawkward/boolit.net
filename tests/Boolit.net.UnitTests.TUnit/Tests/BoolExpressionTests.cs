@@ -37,7 +37,6 @@ internal sealed class BoolExpressionTests
     public async Task InvalidConsecutiveOperands_ShouldThrowInvalidConsecutiveOperandsException(string inputExpression)
     {
         var expression = BoolExpression.Create(inputExpression);
-        
 
         var exception = await Assert.ThrowsAsync<InvalidConsecutiveOperandsException>(
             () => Task.FromResult(expression.Evaluate()))
