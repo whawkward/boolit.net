@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD2_1_OR_GREATER && !NETCORE3_0_OR_GREATER
+﻿#if NETSTANDARD2_0 || NETSTANDARD2_1
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace System.Runtime.CompilerServices;
