@@ -38,6 +38,13 @@ internal sealed class BoolExpressionTests
 
     [Test]
     [Arguments("true && and false")]
+    [Arguments("true or or false")]
+    [Arguments("true xor xor false")]
+    [Arguments("true and)")]
+    [Arguments("(true) not false")]
+    [Arguments("true and) (false")]
+    [Arguments("not)")]
+    [Arguments("true and or false")]
     public async Task InvalidConsecutiveOperands_ShouldThrowInvalidConsecutiveOperandsException(string inputExpression)
     {
         var expression = BoolExpression.Create(inputExpression);
