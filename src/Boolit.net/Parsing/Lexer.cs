@@ -88,7 +88,7 @@ internal ref struct Lexer(string expression)
             return; // Valid combination
         }
 
-        throw new InvalidConsecutiveOperandsException(InputExpression, Index, ConsecutiveOperandsValidator.ValidCombinationsMessage);
+        throw new InvalidConsecutiveOperandsException(InputExpression, Index);
     }
 
     private readonly record struct CurrentToken(IToken Token, int Index, int Length);

@@ -1,4 +1,5 @@
 ﻿using Boolit.NET.Extensions;
+using Boolit.NET.Tokens;
 using System.Globalization;
 
 namespace Boolit.NET.Exceptions;
@@ -17,10 +18,10 @@ public abstract class InvalidTokenException : Exception
 public sealed class InvalidConsecutiveOperandsException : InvalidTokenException
 #pragma warning restore CA1032 // Implement standard exception constructors
 {
-    private const string _messageFormat = "Invalid consecutive operands at index {0}; Accepted combinations are: {combinations}; \"{1}\"";
-    internal InvalidConsecutiveOperandsException(string expression, int index, string acceptedCombinations)
+    private static readonly string _messageFormat = $"Invalid consecutive operands at index {{0}}; Accepted combinations are: {ConsecutiveOperandsValidator.ValidCombinationsMessage}; \"{{1}}\"";
+    internal InvalidConsecutiveOperandsException(string expression, int index)
 #pragma warning disable CA1307
-        : base(expression, index, _messageFormat.Replace("{combinations}", acceptedCombinations))
+        : base(expression, index, _messageFormat)
 #pragma warning restore CA1307
  
     {
