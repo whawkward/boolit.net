@@ -2,7 +2,7 @@
 
 internal static class ConsecutiveOperandsValidator
 {
-    internal static readonly HashSet<(Type, Type)> ValidConsecutiveOperands =
+    public static readonly HashSet<(Type, Type)> ValidConsecutiveOperands =
     [
        (typeof(OpenParenthesisToken), typeof(NotToken)),
         (typeof(AndToken), typeof(NotToken)),
@@ -21,18 +21,19 @@ internal static class ConsecutiveOperandsValidator
     ];
 
 #pragma warning disable CA1307
-    private static readonly Dictionary<string, IEnumerable<string>> _groupedNames = ValidConsecutiveOperands
-        .GroupBy(t => t.Item1.Name.Replace("Token", string.Empty))
+    private const string _tokenSuffix = "Token";
+
+    private static readonly IEnumerable<string> _groupedNames = [.. ValidConsecutiveOperands
+        .Select(t =>
+            (t.Item1.Name.EndsWith(_tokenSuffix, StringComparison.OrdinalIgnoreCase) ? t.Item1.Name[..^_tokenSuffix.Length] : t.Item1.Name,
+            t.Item2.Name.EndsWith(_tokenSuffix, StringComparison.OrdinalIgnoreCase) ? t.Item2.Name[..^_tokenSuffix.Length] : t.Item2.Name)
+        )
+        .GroupBy(t => t.Item1)
         .OrderBy(n => n.Key)
-        .ToDictionary(
-            g => g.Key, 
-            g => g
-                .Select(x => x.Item2.Name.Replace("Token", string.Empty))
-                .OrderBy(n => n)
-                .AsEnumerable());
+        .Select(g => $"{g.Key} followed by {string.Join("|", g.Select(x => x.Item2))}")];
 #pragma warning restore CA1307
 
-    internal static readonly string ValidCombinationsMessage =
-        $"Accepted combinations are: {string.Join(", or ", _groupedNames.Select(kvp => $"{kvp.Key} followed by {string.Join(", ",kvp.Value)}"))}";
+    public static readonly string ValidCombinationsMessage =
+        $"Accepted combinations are: {string.Join(", or ", _groupedNames)}";
 
 }
