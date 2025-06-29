@@ -83,18 +83,12 @@ internal ref struct Lexer(string expression)
 
     private readonly void ValidateConsecutiveOperandTokens(IOperandToken token1, IOperandToken token2)
     {
-        switch ((token1, token2))
+        if (ConsecutiveOperandsValidator.ValidConsecutiveOperands.Contains((token1.GetType(), token2.GetType())))
         {
-            // (!, && !, || !, ^ !, !!, and !, or !, xor !, not not, ! not, not !
-            case (OpenParenthesisToken or AndToken or OrToken or XorToken or NotToken, NotToken):
-            // !(, && (, || (, ^ (, and (, or (, xor (
-            case (NotToken or AndToken or OrToken or XorToken or OpenParenthesisToken, OpenParenthesisToken):
-            // ) &&, ) ||, ) ^, ) and, ) or, ) xor
-            case (CloseParenthesisToken, AndToken or OrToken or XorToken or CloseParenthesisToken):
-                // Valid
-                return;
+            return; // Valid combination
         }
-        throw new InvalidConsecutiveOperandsException(InputExpression, Index);
+
+        throw new InvalidConsecutiveOperandsException(InputExpression, Index, ConsecutiveOperandsValidator.ValidCombinationsMessage);
     }
 
     private readonly record struct CurrentToken(IToken Token, int Index, int Length);
