@@ -17,10 +17,10 @@ public abstract class InvalidTokenException : Exception
 public sealed class InvalidConsecutiveOperandsException : InvalidTokenException
 #pragma warning restore CA1032 // Implement standard exception constructors
 {
-    private const string _messageFormat = "Invalid consecutive operands at index {0}; Accepted combinations are: {2}; \"{1}\"";
+    private const string _messageFormat = "Invalid consecutive operands at index {0}; Accepted combinations are: {combinations}; \"{1}\"";
     internal InvalidConsecutiveOperandsException(string expression, int index, string acceptedCombinations)
 #pragma warning disable CA1307
-        : base(expression, index, _messageFormat.Replace("{2}", acceptedCombinations))
+        : base(expression, index, _messageFormat.Replace("{combinations}", acceptedCombinations))
 #pragma warning restore CA1307
  
     {
