@@ -5,13 +5,12 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>13</LangVersion>
-
 		<!-- NuGet Package Properties -->
 		<PackageId>Boolit.NET</PackageId>
 		<Version>1.0.0</Version>
 		<Authors>whawkward</Authors>
 		<Description>A lightweight, fast, and easy-to-use .NET library for parsing and evaluating boolean expressions from strings.</Description>
-		<PackageTags>boolean, expression, parser, logic</PackageTags>
+		<PackageTags>boolean;expression;parser;logic</PackageTags>
 		<PackageProjectUrl>https://github.com/whawkward/Boolit.net</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/whawkward/Boolit.net.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
