@@ -20,19 +20,19 @@ jobs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Required to get all tags
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to get all tags
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
           
-    - name: Check if push to main
-      id: push_check
-      run: echo "is_push_to_main=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+      - name: Check if push to main
+        id: push_check
+        run: echo "is_push_to_main=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
 
     - name: Restore dependencies
       run: dotnet restore
