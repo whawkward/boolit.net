@@ -14,16 +14,16 @@ A lightweight, fast, and easy-to-use .NET library for parsing and evaluating boo
 
 ### Installation
 
-Boolit.net is available on NuGet. You can install it using the .NET CLI:
+Boolit.NET is available on NuGet. You can install it using the .NET CLI:
 
 ```bash
-dotnet add package Boolit.net
+dotnet add package Boolit.NET
 ```
 
 Or via the NuGet Package Manager:
 
 ```powershell
-Install-Package Boolit.net
+Install-Package Boolit.NET
 ```
 
 ### Usage
