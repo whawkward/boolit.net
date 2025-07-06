@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Boolit.NET\Boolit.NET.csproj" />
+    <ProjectReference Include="..\..\src\Boolit.net\Boolit.net.csproj" />
   </ItemGroup>
 
   <ItemGroup>
