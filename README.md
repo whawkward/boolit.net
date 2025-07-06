@@ -1,4 +1,4 @@
-# Boolit.net
+# Boolit.NET
 
 A lightweight, fast, and easy-to-use .NET library for parsing and evaluating boolean expressions from strings.
 
@@ -52,7 +52,11 @@ The following operators are supported, in order of precedence:
 4.  `and` - Logical AND
 5.  `or` - Logical OR
 
-## Building from Source
+## Contributing
+
+Contributions are welcome! If you'd like to contribute, please feel free to submit a pull request.
+
+### Building from Source
 
 To build the library from source, you'll need the .NET SDK.
 
@@ -69,7 +73,7 @@ To build the library from source, you'll need the .NET SDK.
     dotnet build --configuration Release
     ```
 
-## Testing
+### Testing
 
 The solution includes unit tests. To run them, navigate to the root of the repository and execute:
 

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CDBE06CC-D226-41A0-BE4E-F4C9CB84F112}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.NET", "src\Boolit.NET\Boolit.NET.csproj", "{3FA9477A-511A-4BDD-95FD-8484F850F822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.net", "src\Boolit.net\Boolit.net.csproj", "{3FA9477A-511A-4BDD-95FD-8484F850F822}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3119CB99-F47D-42FE-9FA3-D44AACC68F86}"
 EndProject
@@ -13,9 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleConsole", "src\Sample
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2D575547-2163-4601-A235-E5F22D508F5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.NET.UnitTests.XUnit", "tests\Boolit.NET.UnitTests.XUnit\Boolit.NET.UnitTests.XUnit.csproj", "{F06BF4FD-93F0-4C32-BE92-0E70A2A9B83C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.net.UnitTests.XUnit", "tests\Boolit.net.UnitTests.XUnit\Boolit.net.UnitTests.XUnit.csproj", "{F06BF4FD-93F0-4C32-BE92-0E70A2A9B83C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.NET.UnitTests.TUnit", "tests\Boolit.NET.UnitTests.TUnit\Boolit.NET.UnitTests.TUnit.csproj", "{E0ABB4F4-1985-458E-BCC5-51504A278F86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boolit.net.UnitTests.TUnit", "tests\Boolit.net.UnitTests.TUnit\Boolit.net.UnitTests.TUnit.csproj", "{E0ABB4F4-1985-458E-BCC5-51504A278F86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
