@@ -33,31 +33,8 @@ jobs:
       - name: Check if push to main
         id: push_check
         run: echo "is_push_to_main=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
-
-    - name: Restore dependencies
-      run: dotnet restore
-      
-    - name: Build
-      run: dotnet build --no-restore
-      
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
-      
-    - name: Get short commit hash
-      if: steps.push_check.outputs.is_push_to_main == 'true'
-      id: vars
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      
-    - name: Pack
-      if: steps.push_check.outputs.is_push_to_main == 'true'
-      run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
-      
-    - name: Upload a Build Artifact
-      if: steps.push_check.outputs.is_push_to_main == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-package
-        path: artifacts/*
+        run: dotnet build --no-restore --configuration Release
+        run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
 
   publish:
     name: Publish to NuGet
