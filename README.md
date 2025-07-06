@@ -7,7 +7,6 @@ A lightweight, fast, and easy-to-use .NET library for parsing and evaluating boo
 - **Intuitive Syntax:** Use common boolean operators like `and`, `or`, `not`, `xor`.
 - **Case-Insensitive:** `TRUE AND false` is the same as `true and FALSE`.
 - **Parentheses:** Group expressions with `()` for clarity and order of operations.
-
 - **Cross-Platform:** Targets .NET Standard 2.0+, .NET 8, and .NET 9 for wide compatibility.
 - **High Performance:** Optimized for speed with low memory allocations.
 
