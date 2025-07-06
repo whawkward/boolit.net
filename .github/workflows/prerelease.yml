@@ -1,0 +1,81 @@
+name: Pre-release
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/Boolit.net/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'src/Boolit.net/**'
+      - 'tests/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    outputs:
+      is_push_to_main: ${{ steps.push_check.outputs.is_push_to_main }}
+      sha_short: ${{ steps.vars.outputs.sha_short }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required to get all tags
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          
+    - name: Check if push to main
+      id: push_check
+      run: echo "is_push_to_main=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
+
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      
+    - name: Get short commit hash
+      if: steps.push_check.outputs.is_push_to_main == 'true'
+      id: vars
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      
+    - name: Pack
+      if: steps.push_check.outputs.is_push_to_main == 'true'
+      run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
+      
+    - name: Upload a Build Artifact
+      if: steps.push_check.outputs.is_push_to_main == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-package
+        path: artifacts/*
+
+  publish:
+    name: Publish to NuGet
+    needs: build
+    runs-on: ubuntu-latest
+    if: needs.build.outputs.is_push_to_main == 'true'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts
+
+      - name: Publish to NuGet
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
+        
+      - name: Tag release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.sha_short }}
+          prerelease: true
