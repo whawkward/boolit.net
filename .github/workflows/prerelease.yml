@@ -13,7 +13,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            frameworks: "net8.0;net9.0"
+            name: "Linux (.NET 8/9)"
+          - os: windows-latest  
+            frameworks: "net462;net8.0;net9.0"
+            name: "Windows (All Frameworks)"
+    
+    runs-on: ${{ matrix.os }}
+    name: Build - ${{ matrix.name }}
     outputs:
       is_push_to_main: ${{ steps.push_check.outputs.is_push_to_main }}
       sha_short: ${{ steps.vars.outputs.sha_short }}
@@ -38,14 +49,14 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
       - name: Get short commit hash
-        if: steps.push_check.outputs.is_push_to_main == 'true'
+        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Pack
-        if: steps.push_check.outputs.is_push_to_main == 'true'
+        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
         run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
       - name: Upload a Build Artifact
-        if: steps.push_check.outputs.is_push_to_main == 'true'
+        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: nuget-package
