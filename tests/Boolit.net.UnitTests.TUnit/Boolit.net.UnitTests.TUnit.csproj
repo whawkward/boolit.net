@@ -1,18 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net462;net8.0;net9.0</TargetFrameworks>
+		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('Windows'))">net8.0;net9.0</TargetFrameworks>
+		<NoWarn>$(NoWarn);CS1685</NoWarn>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="TUnit" Version="0.16.13" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="6.0.4" PrivateAssets="all" />
+		<PackageReference Include="TUnit" Version="0.16.13" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Boolit.NET\Boolit.NET.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Boolit.net\Boolit.net.csproj" />
+	</ItemGroup>
 
 </Project>

@@ -1,0 +1,108 @@
+name: Pre-release
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/Boolit.net/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "src/Boolit.net/**"
+      - "tests/**"
+jobs:
+  build-matrix:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            frameworks: "net8.0;net9.0"
+            name: "Linux (.NET 8/9)"
+          - os: windows-latest
+            frameworks: "net462;net8.0;net9.0"
+            name: "Windows (All Frameworks)"
+
+    runs-on: ${{ matrix.os }}
+    name: Build - ${{ matrix.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+      # Upload build artifacts (Ubuntu only)
+      - name: Upload build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            src/Boolit.net/bin/Release/
+            src/Boolit.net/obj/Release/
+
+  package:
+    needs: build-matrix
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      sha_short: ${{ steps.vars.outputs.sha_short }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      # Download the Ubuntu build artifacts
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .
+
+      - name: Get short commit hash
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # Pack using the pre-built binaries
+      - name: Pack
+        run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*
+
+  publish:
+    name: Publish to NuGet
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts
+
+      - name: Publish to NuGet
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
+
+      - name: Tag release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.package.outputs.sha_short }}
+          prerelease: true
