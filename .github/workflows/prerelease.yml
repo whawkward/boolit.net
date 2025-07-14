@@ -48,7 +48,7 @@ jobs:
           name: build-output
           path: |
             src/Boolit.net/bin/Release/
-            src/Boolit.net/obj/Release/
+            src/Boolit.net/obj/
 
   package:
     needs: build-matrix
