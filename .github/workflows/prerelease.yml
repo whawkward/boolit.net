@@ -10,53 +10,78 @@ on:
     paths:
       - "src/Boolit.net/**"
       - "tests/**"
-
 jobs:
-  build:
+  build-matrix:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             frameworks: "net8.0;net9.0"
             name: "Linux (.NET 8/9)"
-          - os: windows-latest  
+          - os: windows-latest
             frameworks: "net462;net8.0;net9.0"
             name: "Windows (All Frameworks)"
-    
+
     runs-on: ${{ matrix.os }}
     name: Build - ${{ matrix.name }}
-    outputs:
-      is_push_to_main: ${{ steps.push_check.outputs.is_push_to_main }}
-      sha_short: ${{ steps.vars.outputs.sha_short }}
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Required to get all tags
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             8.0.x
             9.0.x
-      - name: Check if push to main
-        id: push_check
-        run: echo "is_push_to_main=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" >> $GITHUB_OUTPUT
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore --configuration Release
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+      # Upload build artifacts (Ubuntu only)
+      - name: Upload build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            src/Boolit.net/bin/Release/
+            src/Boolit.net/obj/Release/
+
+  package:
+    needs: build-matrix
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      sha_short: ${{ steps.vars.outputs.sha_short }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      # Download the Ubuntu build artifacts
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .
+
       - name: Get short commit hash
-        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # Pack using the pre-built binaries
       - name: Pack
-        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
         run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
-      - name: Upload a Build Artifact
-        if: steps.push_check.outputs.is_push_to_main == 'true' && matrix.os == 'ubuntu-latest'
+
+      - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
           name: nuget-package
@@ -64,9 +89,8 @@ jobs:
 
   publish:
     name: Publish to NuGet
-    needs: build
+    needs: package
     runs-on: ubuntu-latest
-    if: needs.build.outputs.is_push_to_main == 'true'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -80,5 +104,5 @@ jobs:
       - name: Tag release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build.outputs.sha_short }}
+          tag_name: v${{ needs.package.outputs.sha_short }}
           prerelease: true
