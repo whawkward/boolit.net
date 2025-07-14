@@ -1,11 +1,10 @@
-
 name: Manual Release
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'The version to release (e.g., 1.0.0)'
+        description: "The version to release (e.g., 1.0.0)"
         required: true
 
 jobs:
@@ -15,50 +14,50 @@ jobs:
         include:
           - os: ubuntu-latest
             name: "Linux (.NET 8/9)"
-          - os: windows-latest  
+          - os: windows-latest
             name: "Windows (All Frameworks)"
-    
+
     runs-on: ${{ matrix.os }}
     name: Build - ${{ matrix.name }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
-    - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
-    - name: Pack
-      if: matrix.os == 'ubuntu-latest'
-      run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts -p:Version=${{ github.event.inputs.version }}
-    - name: Upload a Build Artifact
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-package
-        path: artifacts/*
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Pack
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts -p:Version=${{ github.event.inputs.version }}
+      - name: Upload a Build Artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*
 
   release:
     name: Publish Release
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-package
-        path: artifacts
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts
 
-    - name: Publish to NuGet
-      run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
-    - name: Tag release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ github.event.inputs.version }}
+      - name: Publish to NuGet
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
+      - name: Tag release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
