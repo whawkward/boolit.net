@@ -5,11 +5,15 @@ on:
     branches: ["main"]
     paths:
       - "src/Boolit.net/**"
+      - ".github/workflows/prerelease.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "src/Boolit.net/**"
       - "tests/**"
+      - ".github/workflows/prerelease.yml"
+  workflow_dispatch:
+
 jobs:
   build-matrix:
     strategy:
@@ -50,10 +54,33 @@ jobs:
             src/Boolit.net/bin/Release/
             src/Boolit.net/obj/
 
-  package:
+  check-changes:
     needs: build-matrix
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      src_changed: ${{ steps.check_src.outputs.src_changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need previous commit to compare
+      - name: Check for src changes
+        id: check_src
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -q '^src/'; then
+            echo "src_changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Source code changes detected"
+          else
+            echo "src_changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No source code changes detected"
+          fi
+
+  package-and-publish:
+    name: Package and Publish to NuGet
+    needs: check-changes
+    runs-on: ubuntu-latest
+    if: needs.check-changes.outputs.src_changed == 'true'
     outputs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
 
@@ -81,28 +108,13 @@ jobs:
       - name: Pack
         run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
 
-      - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-package
-          path: artifacts/*
-
-  publish:
-    name: Publish to NuGet
-    needs: package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-package
-          path: artifacts
-
+      # Publish directly to NuGet
       - name: Publish to NuGet
         run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
 
+      # Create GitHub release
       - name: Tag release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.package.outputs.sha_short }}
+          tag_name: v${{ steps.vars.outputs.sha_short }}
           prerelease: true
