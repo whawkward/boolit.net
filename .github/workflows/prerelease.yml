@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "src/Boolit.net/**"
+      - "tests/**"
       - ".github/workflows/prerelease.yml"
   pull_request:
     branches: ["main"]
@@ -54,33 +55,38 @@ jobs:
             src/Boolit.net/bin/Release/
             src/Boolit.net/obj/
 
-  check-changes:
+  should-publish:
     needs: build-matrix
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     outputs:
-      src_changed: ${{ steps.check_src.outputs.src_changed }}
+      should_pack_and_publish: ${{ steps.check_pack_and_publish.outputs.should_pack_and_publish }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2 # Need previous commit to compare
-      - name: Check for src changes
-        id: check_src
+      - name: Determine if should pack and publish
+        id: check_pack_and_publish
         run: |
+          manual_trigger=$([ "${{ github.event_name }}" = "workflow_dispatch" ] && echo "true" || echo "false")
           src_changed=$(git diff --name-only HEAD~1 HEAD | grep -q '^src/' && echo "true" || echo "false")
-          if [ "$src_changed" = "true" ]; then
+          result=$([ "$manual_trigger" = "true" ] || [ "$src_changed" = "true" ] && echo "true" || echo "false")
+
+          if [ "$manual_trigger" = "true" ]; then
+            echo "🚀 Manual trigger detected - forcing package creation"
+          elif [ "$src_changed" = "true" ]; then
             echo "✅ Source code changes detected"
           else
             echo "ℹ️ No source code changes detected"
           fi
-          echo "src_changed=$src_changed" >> $GITHUB_OUTPUT
+          echo "should_pack_and_publish=$result" >> $GITHUB_OUTPUT
 
   package-and-publish:
     name: Package and Publish to NuGet
-    needs: check-changes
+    needs: should-publish
     runs-on: ubuntu-latest
-    if: needs.check-changes.outputs.src_changed == 'true'
+    if: needs.should-publish.outputs.should_pack_and_publish == 'true'
     outputs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
 
