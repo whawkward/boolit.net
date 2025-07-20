@@ -68,13 +68,13 @@ jobs:
       - name: Check for src changes
         id: check_src
         run: |
-          if git diff --name-only HEAD~1 HEAD | grep -q '^src/'; then
-            echo "src_changed=true" >> $GITHUB_OUTPUT
+          src_changed=$(git diff --name-only HEAD~1 HEAD | grep -q '^src/' && echo "true" || echo "false")
+          if [ "$src_changed" = "true" ]; then
             echo "✅ Source code changes detected"
           else
-            echo "src_changed=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No source code changes detected"
           fi
+          echo "src_changed=$src_changed" >> $GITHUB_OUTPUT
 
   package-and-publish:
     name: Package and Publish to NuGet
