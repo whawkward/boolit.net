@@ -5,11 +5,16 @@ on:
     branches: ["main"]
     paths:
       - "src/Boolit.net/**"
+      - "tests/**"
+      - ".github/workflows/prerelease.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "src/Boolit.net/**"
       - "tests/**"
+      - ".github/workflows/prerelease.yml"
+  workflow_dispatch:
+
 jobs:
   build-matrix:
     strategy:
@@ -50,10 +55,38 @@ jobs:
             src/Boolit.net/bin/Release/
             src/Boolit.net/obj/
 
-  package:
+  should-publish:
     needs: build-matrix
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    outputs:
+      should_pack_and_publish: ${{ steps.check_pack_and_publish.outputs.should_pack_and_publish }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need previous commit to compare
+      - name: Determine if should pack and publish
+        id: check_pack_and_publish
+        run: |
+          manual_trigger=$([ "${{ github.event_name }}" = "workflow_dispatch" ] && echo "true" || echo "false")
+          src_changed=$([ "$manual_trigger" = "false" ] && git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^src/' && echo "true" || echo "false")
+          result=$([ "$manual_trigger" = "true" ] || [ "$src_changed" = "true" ] && echo "true" || echo "false")
+
+          if [ "$manual_trigger" = "true" ]; then
+            echo "🚀 Manual trigger detected - forcing package creation"
+          elif [ "$src_changed" = "true" ]; then
+            echo "✅ Source code changes detected"
+          else
+            echo "ℹ️ No source code changes detected"
+          fi
+          echo "should_pack_and_publish=$result" >> $GITHUB_OUTPUT
+
+  package-and-publish:
+    name: Package and Publish to NuGet
+    needs: should-publish
+    runs-on: ubuntu-latest
+    if: needs.should-publish.outputs.should_pack_and_publish == 'true'
     outputs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
 
@@ -81,28 +114,13 @@ jobs:
       - name: Pack
         run: dotnet pack src/Boolit.net/Boolit.net.csproj --no-build --configuration Release -o artifacts --version-suffix preview-${{ steps.vars.outputs.sha_short }}
 
-      - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-package
-          path: artifacts/*
-
-  publish:
-    name: Publish to NuGet
-    needs: package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-package
-          path: artifacts
-
+      # Publish directly to NuGet
       - name: Publish to NuGet
         run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
 
+      # Create GitHub release
       - name: Tag release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.package.outputs.sha_short }}
+          tag_name: v${{ steps.vars.outputs.sha_short }}
           prerelease: true
