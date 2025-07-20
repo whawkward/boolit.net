@@ -65,12 +65,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Need previous commit to compare
+          fetch-depth: 0 # Need previous commit to compare
       - name: Determine if should pack and publish
         id: check_pack_and_publish
         run: |
           manual_trigger=$([ "${{ github.event_name }}" = "workflow_dispatch" ] && echo "true" || echo "false")
-          src_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^src/' && echo "true" || echo "false")
+          src_changed=$([ "$manual_trigger" = "false" ] && git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^src/' && echo "true" || echo "false")
           result=$([ "$manual_trigger" = "true" ] || [ "$src_changed" = "true" ] && echo "true" || echo "false")
 
           if [ "$manual_trigger" = "true" ]; then
